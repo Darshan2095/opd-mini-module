@@ -1,69 +1,193 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+export default function HomePage() {
+  const [patientCount, setPatientCount] = useState<number | null>(null);
+  const [appointmentCount, setAppointmentCount] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [todayFormatted, setTodayFormatted] = useState("");
+
+  useEffect(() => {
+    setTodayFormatted(
+      new Date().toLocaleDateString("en-IN", {
+        weekday: "long",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    );
+
+    const loadStats = async () => {
+      try {
+        setLoading(true);
+        const [patientsResponse, appointmentsResponse] = await Promise.all([
+          fetch("/api/patients"),
+          fetch("/api/appointments?date=today"),
+        ]);
+
+        const patients = await patientsResponse.json();
+        const appointments = await appointmentsResponse.json();
+
+        if (patients.success && Array.isArray(patients.data)) {
+          setPatientCount(patients.data.length);
+        } else {
+          setPatientCount(0);
+        }
+
+        if (appointments.success && Array.isArray(appointments.data)) {
+          setAppointmentCount(appointments.data.length);
+        } else {
+          setAppointmentCount(0);
+        }
+      } catch (error) {
+        console.error("Failed to load dashboard metrics:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="min-h-[calc(100vh-3.5rem)] bg-slate-50/60 py-6 sm:py-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        {/* Top OPD Overview Banner */}
+        <div className="mb-6 flex flex-col gap-3 border-b border-slate-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold tracking-tight text-slate-900">
+                Outpatient Reception Desk
+              </h1>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                Live OPD
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Daily census, appointment queuing, and clinical charting oversight for{" "}
+              <span className="font-medium text-slate-700">{todayFormatted}</span>.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href="/appointments"
+              className="inline-flex items-center justify-center rounded-md bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-white shadow-2xs hover:bg-slate-800 transition"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Open Live Queue
+            </Link>
+          </div>
+        </div>
+
+        {/* Clinical Statistics Strip */}
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* Total Patients Card */}
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Total Registered Patients
+              </span>
+              <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-[10px] text-slate-600">
+                MRN Directory
+              </span>
+            </div>
+            <div className="mt-3 flex items-baseline gap-2">
+              {loading ? (
+                <div className="h-8 w-16 animate-pulse rounded bg-slate-200" />
+              ) : (
+                <span className="font-mono text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+                  {patientCount ?? 0}
+                </span>
+              )}
+              <span className="text-xs text-slate-500">active records</span>
+            </div>
+            <p className="mt-2 text-xs text-slate-400">
+              Total patient demographic profiles on file.
+            </p>
+          </div>
+
+          {/* Today's Appointments Card */}
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-2xs">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                Today&apos;s Appointments
+              </span>
+              <span className="rounded bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-mono text-[10px]">
+                Today
+              </span>
+            </div>
+            <div className="mt-3 flex items-baseline gap-2">
+              {loading ? (
+                <div className="h-8 w-16 animate-pulse rounded bg-slate-200" />
+              ) : (
+                <span className="font-mono text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+                  {appointmentCount ?? 0}
+                </span>
+              )}
+              <span className="text-xs text-slate-500">scheduled encounters</span>
+            </div>
+            <p className="mt-2 text-xs text-slate-400">
+              Patients admitted or queued for current physician roster.
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Workstation Actions */}
+        <div>
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+            Workstation Modules
+          </h2>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Link
+              href="/patients"
+              className="group rounded-lg border border-slate-200 bg-white p-5 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50/50"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold">
+                    PT
+                  </span>
+                  <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                    Patient Directory & Registration
+                  </h3>
+                </div>
+                <span className="text-xs text-slate-400 group-hover:translate-x-0.5 transition-transform">
+                  →
+                </span>
+              </div>
+              <p className="mt-2.5 text-xs leading-relaxed text-slate-500">
+                Register new outpatients, search records by phone/name, and review longitudinal encounter histories.
+              </p>
+            </Link>
+
+            <Link
+              href="/appointments"
+              className="group rounded-lg border border-slate-200 bg-white p-5 shadow-2xs transition-all hover:border-slate-300 hover:bg-slate-50/50"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded border border-slate-200 bg-slate-50 text-slate-700 text-xs font-semibold">
+                    AP
+                  </span>
+                  <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                    Appointment Booking & Queue
+                  </h3>
+                </div>
+                <span className="text-xs text-slate-400 group-hover:translate-x-0.5 transition-transform">
+                  →
+                </span>
+              </div>
+              <p className="mt-2.5 text-xs leading-relaxed text-slate-500">
+                Schedule patient slots, monitor today&apos;s waiting queue, and launch doctor consultation charting.
+              </p>
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
