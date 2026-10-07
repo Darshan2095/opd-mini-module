@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏥 OPD Mini Module
 
-## Getting Started
+A small, functional **Outpatient Department (OPD) Management Module** designed to manage patient registration, appointment booking, and doctor consultation summaries.
 
-First, run the development server:
+The application provides a simple workflow for hospital or clinic staff to register patients, schedule appointments, record consultation details, and view patient consultation history.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 👤 Patient Registration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Register new patients
+- Store patient information:
+  - Patient Name
+  - Gender
+  - Age
+  - Phone Number
+- View all registered patients
+- Search patients by name or phone number
+- View individual patient consultation history
 
-## Learn More
+### 📅 Appointment Booking
 
-To learn more about Next.js, take a look at the following resources:
+- Book appointments for registered patients
+- Select doctor
+- Select appointment date and time
+- View today's appointments
+- Track appointment status
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🩺 Consultation Summary
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Open consultation from an appointment
+- Record patient vitals
+- Add consultation notes
+- Mark consultation as completed
+- View completed consultation history for a patient
 
-## Deploy on Vercel
+### 📊 Dashboard
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- View total registered patients
+- View today's appointment count
+- Quick navigation to major OPD modules
+- Simple and responsive interface
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+- **Next.js** – App Router
+- **React.js**
+- **TypeScript**
+- **Tailwind CSS**
+- **Lucide React**
+
+### Backend
+
+- **Next.js Route Handlers**
+- REST-style API endpoints
+- **Mongoose**
+
+### Database
+
+- **MongoDB Atlas**
+
+### Validation
+
+- **Zod**
+
+### Deployment
+
+- **Vercel**
+
+---
+
+## 🏗️ Architecture
+
+The project follows a simple full-stack architecture using Next.js App Router.
+
+```text
+┌───────────────────────────┐
+│        Next.js UI         │
+│   React + TypeScript      │
+└─────────────┬─────────────┘
+              │
+              ▼
+┌───────────────────────────┐
+│     API Route Handlers    │
+│       REST APIs           │
+└─────────────┬─────────────┘
+              │
+              ▼
+┌───────────────────────────┐
+│         Mongoose          │
+│      Data / Models        │
+└─────────────┬─────────────┘
+              │
+              ▼
+┌───────────────────────────┐
+│       MongoDB Atlas       │
+└───────────────────────────┘
